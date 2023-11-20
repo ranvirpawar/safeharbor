@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "52211651421",
+    "project_id": "safeharbor-909b2",
+    "storage_bucket": "safeharbor-909b2.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:52211651421:android:8acdcbe9d95c9521ba8eb4",
+        "android_client_info": {
+          "package_name": "com.example.safeharbor"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB3OzhZuGsjFr4CJk0IpQBGb14SnMiy1q0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
