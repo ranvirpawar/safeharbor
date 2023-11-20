@@ -1,27 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'signUp.dart';
+import 'loginPage.dart';
+import 'profilePage.dart';
 
-Future main() async {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
-      debugShowCheckedModeBanner: false,
+      title: 'SAFE HARBOR',
       theme: ThemeData(
         primarySwatch: Colors.pink,
       ),
-      initialRoute:',
+      initialRoute: '/signin',
       routes: {
-        //'/profile': (context) => ProfilePage(),
+        '/signup': (context) => SignUpPage(),
+        '/signin': (context) => LoginPage(),
+        '/profile': (context) => DisplayPage(),
+        // Add more routes as needed for other pages in your app
       },
     );
   }
