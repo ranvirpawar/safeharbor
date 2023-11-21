@@ -5,6 +5,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:geocoding/geocoding.dart';
 import 'profilePage.dart';
 
 class Homepage extends StatefulWidget {
@@ -68,10 +69,23 @@ class _HomepageState extends State<Homepage> {
           desiredAccuracy: LocationAccuracy.high,
         );
 
-        String location =
-            'Latitude: ${position.latitude}, Longitude: ${position.longitude}';
-        print('Location obtained: $location');
-        return location;
+        List<Placemark> placemarks = await placemarkFromCoordinates(
+          position.latitude,
+          position.longitude,
+        );
+
+        if (placemarks.isNotEmpty) {
+          Placemark placemark = placemarks[0];
+          String address = placemark.name ?? '';
+          String locality = placemark.locality ?? '';
+          String country = placemark.country ?? '';
+
+          String location = '$address, $locality, $country';
+          print('Location obtained: $location');
+          return location;
+        } else {
+          return 'Location not available';
+        }
       } else {
         // Request location permission
         print('Requesting location permission...');
@@ -194,7 +208,6 @@ class _HomepageState extends State<Homepage> {
               SizedBox(height: 30),
               ElevatedButton(
                 onPressed: () {
-                  // sendHelpSMS();
                   launchHelpSMS();
                 },
                 child: Text('Get Help'),
