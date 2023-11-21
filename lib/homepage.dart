@@ -4,8 +4,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:intl/intl.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'profilePage.dart';
-
 
 class Homepage extends StatefulWidget {
   @override
@@ -16,15 +16,15 @@ class _HomepageState extends State<Homepage> {
   late String fullName = '';
   late String emergencyPhoneNumber;
   int _currentIndex = 0;
-  String currentLocation = '';
-  String currentDateTime = '';
+  late Future<String> locationFuture;
+  late String currentDateTime = '';
 
   @override
   void initState() {
     super.initState();
     fetchFullName();
     updateDateTime();
-    fetchLocation();
+    locationFuture = fetchLocation();
   }
 
   Future<void> fetchFullName() async {
@@ -58,7 +58,7 @@ class _HomepageState extends State<Homepage> {
     });
   }
 
-  Future<void> fetchLocation() async {
+  Future<String> fetchLocation() async {
     try {
       var status = await Permission.location.status;
       print('Location permission status: $status');
@@ -68,25 +68,21 @@ class _HomepageState extends State<Homepage> {
           desiredAccuracy: LocationAccuracy.high,
         );
 
-        print('Location obtained: $position');
-
-        setState(() {
-          currentLocation =
-              'Latitude: ${position.latitude}, Longitude: ${position.longitude}';
-          print(currentLocation);
-        });
+        String location =
+            'Latitude: ${position.latitude}, Longitude: ${position.longitude}';
+        print('Location obtained: $location');
+        return location;
       } else {
         // Request location permission
         print('Requesting location permission...');
         await Permission.location.request();
         print(
             'Location permission granted: ${await Permission.location.status}');
+        return 'Location not available';
       }
     } catch (e) {
       print("Error getting location: $e");
-      setState(() {
-        currentLocation = 'Location not available';
-      });
+      return 'Location not available';
     }
   }
 
@@ -107,6 +103,16 @@ class _HomepageState extends State<Homepage> {
         );
         break;
     }
+  }
+
+  launchHelpSMS() async {
+    String name = fullName;
+    String location = await locationFuture;
+    String smsBody =
+        'Help! I $name need assistance. My current location is $location, and the date and time are $currentDateTime';
+
+    // Now launch the SMS app
+    launch('sms:$emergencyPhoneNumber?body=$smsBody');
   }
 
   @override
@@ -161,12 +167,21 @@ class _HomepageState extends State<Homepage> {
                 textAlign: TextAlign.justify,
               ),
               SizedBox(height: 30),
-              Text(
-                'Current Location: $currentLocation',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
+              FutureBuilder<String>(
+                future: locationFuture,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Text('Current Location: Loading...');
+                  } else {
+                    return Text(
+                      'Current Location: ${snapshot.data}',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    );
+                  }
+                },
               ),
               SizedBox(height: 10),
               Text(
@@ -179,7 +194,8 @@ class _HomepageState extends State<Homepage> {
               SizedBox(height: 30),
               ElevatedButton(
                 onPressed: () {
-                  // Add your logic to handle "Get Help" action
+                  // sendHelpSMS();
+                  launchHelpSMS();
                 },
                 child: Text('Get Help'),
               ),

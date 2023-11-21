@@ -4,6 +4,7 @@ import 'signUp.dart';
 import 'loginPage.dart';
 import 'profilePage.dart';
 
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
