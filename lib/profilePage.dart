@@ -60,6 +60,21 @@ class _DisplayPageState extends State<DisplayPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          'Safe Harbor',
+          style: TextStyle(
+            color: Colors.white,
+            fontFamily: 'Roboto',
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 1.5,
+          ),
+        ),
+        backgroundColor: Colors.pink,
+        elevation: 0,
+        centerTitle: true,
+      ),
       body: Center(
         child: _loading
             ? CircularProgressIndicator()

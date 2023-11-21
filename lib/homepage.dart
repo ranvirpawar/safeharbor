@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'loginPage.dart';
+import 'profilePage.dart'; // Import your ProfilePage
 
 void main() {
   runApp(Homepage());
@@ -12,7 +14,9 @@ class Homepage extends StatefulWidget {
 }
 
 class _HomepageState extends State<Homepage> {
-  late String fullName = ''; // Initialize fullName with an empty string
+  late String fullName = '';
+  late String emergencyPhoneNumber;
+  int _currentIndex = 0;
 
   @override
   void initState() {
@@ -36,68 +40,107 @@ class _HomepageState extends State<Homepage> {
         if (userData != null && userData['fullName'] != null) {
           setState(() {
             fullName = userData['fullName'];
+            emergencyPhoneNumber = userData['emergencyMobile'] ?? '';
           });
         }
       }
     }
   }
 
+  void _onNavItemTapped(int index) {
+    setState(() {
+      _currentIndex = index;
+    });
+
+    switch (_currentIndex) {
+      case 0:
+        // Current page is the home page (already on it)
+        break;
+      case 1:
+        // Navigate to ProfilePage
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => DisplayPage()),
+        );
+        break;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Journey-Mate',
+      title: 'Safe Harbor',
       theme: ThemeData(
-        primarySwatch: Colors.green,
+        primarySwatch: Colors.blue,
       ),
-      home: Builder(
-        builder: (BuildContext context) {
-          return Scaffold(
-            appBar: AppBar(
-              title: Text(
-                'Safe Harbor',
+      home: Scaffold(
+        appBar: AppBar(
+          title: Text(
+            'Safe Harbor',
+            style: TextStyle(
+              color: Colors.white,
+              fontFamily: 'Roboto',
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 1.5,
+            ),
+          ),
+          backgroundColor: Colors.pink,
+          elevation: 0,
+          centerTitle: true,
+        ),
+        body: SingleChildScrollView(
+          padding: EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Welcome ${fullName}',
                 style: TextStyle(
-                  color: Colors.white,
-                  fontFamily: 'Roboto',
-                  fontSize: 24,
+                  fontSize: 28,
                   fontWeight: FontWeight.bold,
-                  letterSpacing: 1.5,
                 ),
               ),
-              backgroundColor: Colors.pink,
-              elevation: 0,
-              centerTitle: true,
-            ),
-            body: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'Welcome ${fullName}', // Display the full name if available
-                    style: TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  SizedBox(height: 20),
-                  Text(
-                    'Guardians at Your Fingertips: Your safety is paramount, whether at home, on the move, or in the workplace. Feel protected, respected, and empowered. No need to fear the unknown – a single tap connects you to your safety confidant.',
-                    style: TextStyle(
-                      fontSize: 16,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  SizedBox(height: 30),
-                  ElevatedButton(
-                    onPressed: () {
-                      // Add your logic to handle "Get Help" action
-                    },
-                    child: Text('Get Help'),
-                  ),
-                ],
+              SizedBox(height: 20),
+              Text(
+                'Guardians at Your Fingertips:',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
+              SizedBox(height: 10),
+              Text(
+                'Your safety is paramount, whether at home, on the move, or in the workplace. Feel protected, respected, and empowered. No need to fear the unknown – a single tap connects you to your safety confidant.',
+                style: TextStyle(
+                  fontSize: 16,
+                ),
+                textAlign: TextAlign.justify,
+              ),
+              SizedBox(height: 30),
+              ElevatedButton(
+                onPressed: () {
+                  // Add your logic to handle "Get Help" action
+                },
+                child: Text('Get Help'),
+              ),
+            ],
+          ),
+        ),
+        bottomNavigationBar: BottomNavigationBar(
+          currentIndex: _currentIndex,
+          onTap: _onNavItemTapped,
+          items: [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.home),
+              label: 'Home',
             ),
-          );
-        },
+            BottomNavigationBarItem(
+              icon: Icon(Icons.person),
+              label: 'Profile',
+            ),
+          ],
+        ),
       ),
     );
   }
