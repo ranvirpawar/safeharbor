@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'loginPage.dart';
-import 'profilePage.dart'; // Import your ProfilePage
+import 'package:geolocator/geolocator.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:intl/intl.dart';
+import 'profilePage.dart';
 
-void main() {
-  runApp(Homepage());
-}
 
 class Homepage extends StatefulWidget {
   @override
@@ -17,11 +16,15 @@ class _HomepageState extends State<Homepage> {
   late String fullName = '';
   late String emergencyPhoneNumber;
   int _currentIndex = 0;
+  String currentLocation = '';
+  String currentDateTime = '';
 
   @override
   void initState() {
     super.initState();
     fetchFullName();
+    updateDateTime();
+    fetchLocation();
   }
 
   Future<void> fetchFullName() async {
@@ -44,6 +47,46 @@ class _HomepageState extends State<Homepage> {
           });
         }
       }
+    }
+  }
+
+  Future<void> updateDateTime() async {
+    String formattedDateTime =
+        DateFormat('EEE, MMM d, y hh:mm a').format(DateTime.now());
+    setState(() {
+      currentDateTime = formattedDateTime;
+    });
+  }
+
+  Future<void> fetchLocation() async {
+    try {
+      var status = await Permission.location.status;
+      print('Location permission status: $status');
+
+      if (status.isGranted) {
+        Position position = await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.high,
+        );
+
+        print('Location obtained: $position');
+
+        setState(() {
+          currentLocation =
+              'Latitude: ${position.latitude}, Longitude: ${position.longitude}';
+          print(currentLocation);
+        });
+      } else {
+        // Request location permission
+        print('Requesting location permission...');
+        await Permission.location.request();
+        print(
+            'Location permission granted: ${await Permission.location.status}');
+      }
+    } catch (e) {
+      print("Error getting location: $e");
+      setState(() {
+        currentLocation = 'Location not available';
+      });
     }
   }
 
@@ -116,6 +159,22 @@ class _HomepageState extends State<Homepage> {
                   fontSize: 16,
                 ),
                 textAlign: TextAlign.justify,
+              ),
+              SizedBox(height: 30),
+              Text(
+                'Current Location: $currentLocation',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(height: 10),
+              Text(
+                'Current Date and Time: $currentDateTime',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               SizedBox(height: 30),
               ElevatedButton(

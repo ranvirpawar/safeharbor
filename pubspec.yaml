@@ -22,6 +22,7 @@ dependencies:
   flutter_sms: ^2.3.3
   permission_handler: ^11.0.1
   intl: ^0.18.1
+  flutter_twilio: ^0.0.18
   
 
 dev_dependencies:
