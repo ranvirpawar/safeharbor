@@ -121,9 +121,34 @@ class _HomepageState extends State<Homepage> {
 
   launchHelpSMS() async {
     String name = fullName;
+    Position position;
+
+    try {
+      var status = await Permission.location.status;
+      print('Location permission status: $status');
+
+      if (status.isGranted) {
+        position = await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.high,
+        );
+      } else {
+        // Request location permission
+        print('Requesting location permission...');
+        await Permission.location.request();
+        print(
+            'Location permission granted: ${await Permission.location.status}');
+        return;
+      }
+    } catch (e) {
+      print("Error getting location: $e");
+      return;
+    }
+
     String location = await locationFuture;
+    String googleMapsLink =
+        'https://www.google.com/maps?q=${position.latitude},${position.longitude}';
     String smsBody =
-        'Help! I $name need assistance. My current location is $location, and the date and time are $currentDateTime';
+        'Help! I $name need assistance. My current location is $location. Click the link to view on Google Maps: $googleMapsLink, and the date and time are $currentDateTime';
 
     // Now launch the SMS app
     launch('sms:$emergencyPhoneNumber?body=$smsBody');
@@ -158,7 +183,7 @@ class _HomepageState extends State<Homepage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Welcome ${fullName}',
+                'Welcome $fullName',
                 style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
